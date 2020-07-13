@@ -79,3 +79,12 @@ class PastConsumptionItemSerializer(serializers.ModelSerializer):
             'item'
         )
         model = PastConsumptionItem
+
+class RoleItemAdminSerializer(serializers.ModelSerializer):
+    item_name = serializers.CharField(source='item.type')
+    class Meta:
+        fields = (
+            'item_name',
+            'quantity'
+        )
+        model = RoleItem

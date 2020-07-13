@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import ListUser,DetailUser,ListScenarioRole,DetailScenarioRole,ListScenario,DetailScenario,ListRoleItem,DetailRoleItem,ListRole,DetailRole,ListPastConsumptionItem,DetailPastConsumptionItem,ListPastConsumption,DetailPastConsumption,ListItem,DetailItem
+from .views import ListUser,DetailUser,ListScenarioRole,DetailScenarioRole,ListScenario,DetailScenario,ListRoleItem,DetailRoleItem,ListRole,DetailRole,ListPastConsumptionItem,DetailPastConsumptionItem,ListPastConsumption,DetailPastConsumption,ListItem,DetailItem, SendAdminItem
 
 urlpatterns = [
     path('user/', ListUser.as_view()),
@@ -26,4 +26,6 @@ urlpatterns = [
 
     path('item/', ListItem.as_view()),
     path('item/<int:pk>/', DetailItem.as_view()),
+
+    path('roleitem/admin/', SendAdminItem)
 ]
