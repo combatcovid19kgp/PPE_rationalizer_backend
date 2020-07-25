@@ -88,3 +88,30 @@ class RoleItemAdminSerializer(serializers.ModelSerializer):
             'quantity'
         )
         model = RoleItem
+
+class UserItemGetSerializer(serializers.ModelSerializer):
+    item_name = serializers.CharField(source='item.type')
+    role_name = serializers.CharField(source='role.role_name')
+    class Meta:
+        fields = (
+            'role_name'
+            'item_name',
+            'quantity'
+        )
+        model = RoleItem
+
+# This needs editing as this serializer can not access role_name and item_name for a specific user, need to read into Nested Serializers, the views part is good.
+
+class UserItemPostSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    scenario = serializers.CharField(source='scene_type')
+    item_name = serializers.CharField(source='item.type')
+    role_name = serializers.CharField(source='role.role_name')
+    class Meta:
+        fields = (
+            'username',
+            'scenario',
+            'role_name',
+            'item_name',
+        )
+        model = User

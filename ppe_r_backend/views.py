@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import User,ScenarioRole,Scenario,RoleItem,Role,PastConsumptionItem,PastConsumption,Item
-from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer
+from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, UserItemGetSerializer, UserItemPostSerializer
 
 #User
 class ListUser(generics.ListCreateAPIView):
@@ -108,3 +108,28 @@ def SendAdminItem(request):
         data = RoleItem.objects.filter(scenario = scenario_id, role= role_id)
         serializer = RoleItemAdminSerializer(data ,many=True)
         return Response(serializer.data)
+
+@api_view(['GET','POST','PUT'])
+def UpdateUserItem(request):
+    if request.method=='GET':
+        username=request.query_params['username']
+        scene=request.query_params['scenario']
+        scenario_id = Scenario.objects.filter(user=username, scene_type=scene).values_list('scenario_id', flat=True)[0]
+        user_id = User.objects.filter(username=username).values_list('user_id', flat=True)[0]
+        data = RoleItem.objects.filter(user=user_id, scenario = scenario_id)
+        serializer = UserItemGetSerializer(data, many= True)
+        return Response(serializer.data)
+
+    elif request.method=='POST':
+        serializer = UserItemPostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+    elif request.method=='PUT':
+        serializer = UserItemPostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
