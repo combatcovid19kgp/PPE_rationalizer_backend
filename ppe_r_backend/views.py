@@ -133,3 +133,18 @@ def UpdateUserItem(request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
+    
+#consumption log 
+#to get the itemwise sum of past-consumption of the roles given a scenario and date range
+@api_view(['GET'])
+def SendAdminQuantity(request):
+    if request.method=='GET':
+        scene = request.query_params['scenario']
+        date_range = request.query_params['date']
+        
+        scenario_id = Scenario.objects.filter(user=3, scene_type=scene).values_list('scenario_id', flat=True)[0]
+        consumption_id = PastConsumption.objects.filter(date=date_range, scenario=scenario_id).values_list('consumption_id', flat=True)[0]
+       
+        data = PastConsumptionItem.objects.filter(consumption_id=consumption_id)
+        serializer = PastConsScenarioAdminSerializer(data ,many=True)
+        return Response(serializer.data)
