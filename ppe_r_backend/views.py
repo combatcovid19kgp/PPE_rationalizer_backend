@@ -134,7 +134,7 @@ def UpdateUserItem(request):
             return Response(serializer.data)
         return Response(serializer.errors)
     
-#consumption log 
+#consumption log -- Needs Correction :(
 #to get the itemwise sum of past-consumption of the roles given a scenario and date range
 @api_view(['GET'])
 def SendAdminQuantity(request):
