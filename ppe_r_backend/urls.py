@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import ListUser,DetailUser,ListScenarioRole,DetailScenarioRole,ListScenario,DetailScenario,ListRoleItem,DetailRoleItem,ListRole,DetailRole,ListPastConsumptionItem,DetailPastConsumptionItem,ListPastConsumption,DetailPastConsumption,ListItem,DetailItem, SendAdminItem, UpdateUserItem, SendAdminQuantity
+from .views import ListUser,DetailUser,ListScenarioRole,DetailScenarioRole,ListScenario,DetailScenario,ListRoleItem,DetailRoleItem,ListRole,DetailRole,ListPastConsumptionItem,DetailPastConsumptionItem,ListPastConsumption,DetailPastConsumption,ListItem,DetailItem, SendAdminItem, UpdateUserItem, SendAdminQuantity, SendAdminQuantoverall
 
 urlpatterns = [
     path('user/', ListUser.as_view()),
@@ -32,5 +32,6 @@ urlpatterns = [
     path('roleitem/updateuser', UpdateUserItem),
     
     #consumption log page
-    path('pastc/admin/', SendAdminQuantity)
+    path('pastconsscenario/admin/', SendAdminQuantity),
+    path('pastconsoverall/admin/',SendAdminQuantoverall)
 ]
