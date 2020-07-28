@@ -120,10 +120,10 @@ class UserItemPostSerializer(serializers.ModelSerializer):
 
 #to get the itemwise sum of past-consumption of the roles given a scenario and date range
 class PastConsScenarioAdminSerializer(serializers.ModelSerializer):
-    #item_name = serializers.CharField(source='item.type')  --- [commented this part due to error being shown] ---
+    # item_name = serializers.CharField(source='item.type')
     class Meta:
         fields = (
-            #'item_name',
-            'quantity'
+            # 'item_name',
+            'quantity',
         )
         model = PastConsumptionItem

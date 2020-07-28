@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import User,ScenarioRole,Scenario,RoleItem,Role,PastConsumptionItem,PastConsumption,Item
 from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, UserItemGetSerializer, UserItemPostSerializer , PastConsScenarioAdminSerializer
+from datetime import datetime
 
 #User
 class ListUser(generics.ListCreateAPIView):
@@ -143,6 +144,8 @@ def UpdateUserItem(request):
 def SendAdminQuantity(request):
     if request.method=='GET':
         scene = request.query_params['scenario']
+        date1 = request.query_params['datestart']
+        date2 = request.query_params['dateend']
      
         #taking the values of all available dates in array 'dates'
         dates = []
@@ -150,9 +153,7 @@ def SendAdminQuantity(request):
         qsd=qsd.values(*dates)
 
         #taking dates as input in array 'dater' with 2 elements
-        dater = []
-        for date in qsd:
-            dater.append(request.query_params['date'])
+        dater = [datetime.strptime(date1, '%Y-%m-%d').date(),datetime.strptime(date2, '%Y-%m-%d').date()]
 
     
 
@@ -165,10 +166,11 @@ def SendAdminQuantity(request):
         #for consumption_id in PastConsumption
         #consumption_id = PastConsumption.objects.filter(date=daterange, scenario=scenario_id).values_list('consumption_id', flat=True)[i]
         
-        data= []
+        data_id= []
         for elem in qs:
-            data.append(PastConsumptionItem.objects.filter(consumption_id=elem['consumption_id']))
+            data_id.append(PastConsumptionItem.objects.filter(consumption_id=elem['consumption_id']).values_list('consumption_id', flat=True)[0])
 
+        data = PastConsumptionItem.objects.filter(pk__in=data_id)
 
         #data = PastConsumptionItem.objects.filter(consumption_id=consumption_id)
         serializer = PastConsScenarioAdminSerializer(data ,many=True)
