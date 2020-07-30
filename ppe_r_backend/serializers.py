@@ -97,18 +97,19 @@ class RoleItemIntermediateSerializer(serializers.ModelSerializer):
         fields = ('item_name', 'item_quantity')
 
 class RoleItemFinalSerializer(serializers.ModelSerializer):
-    itemquan = RoleItemIntermediateSerializer(many=True)
+    itemquan = serializers.SerializerMethodField()
     role_name = serializers.CharField(source='role.role_name')
     role_quantity = serializers.CharField(source='quantity')
     class Meta:
         model = ScenarioRole
         fields = ('role_name', 'role_quantity','itemquan')
 
-class RoleItemUpdatedSerializer(serializers.ModelSerializer):
-    roleitem = RoleItemFinalSerializer(many=True)
-    class Meta:
-        model = Role
-        fields= ('roleitem')
+    def get_itemquan(self, obj):
+        scenario_id=obj.scenario
+        role_id=obj.role
+        qset = RoleItem.objects.filter(scenario=scenario_id,role=role_id)
+        return [RoleItemIntermediateSerializer(m).data for m in qset]
+
 
 class RoleItemPostPutSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
@@ -118,12 +119,12 @@ class RoleItemPostPutSerializer(serializers.ModelSerializer):
         model = Scenario
         fields = ('username','scenario','roleitem')
 
-class RoleItemGetSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username')
-    scenario = serializers.CharField(source='scene_type')
-    class Meta:
-        model = Scenario
-        fields = ('username','scenario')
+    # def create(self, validated_data):
+
+    # def update(self, instance, validated_data):
+
+# class UpdateDemandSerializer(serializers.ModelSerializer):
+
 
 #consumption log page
 

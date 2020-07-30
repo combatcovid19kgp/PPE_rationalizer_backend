@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import User,ScenarioRole,Scenario,RoleItem,Role,PastConsumptionItem,PastConsumption,Item
-from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, UserItemPostSerializer , PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
+from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, RoleItemPostPutSerializer, RoleItemFinalSerializer, PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
 from datetime import datetime
 
 #User
@@ -110,28 +110,28 @@ def SendAdminItem(request):
         serializer = RoleItemAdminSerializer(data ,many=True)
         return Response(serializer.data)
 
-@api_view(['GET,''POST','PUT'])
+@api_view(['GET','POST','PUT'])
 def UpdateUserItem(request):
 
     if request.method=='GET':
-        username=request.query_params['username']
+        userna=request.query_params['username']
         scene=request.query_params['scenario']
+        user_id = User.objects.filter(username=userna).values_list('user_id', flat=True)[0]
+        scenario_id = Scenario.objects.filter(user=user_id, scene_type=scene).values_list('scenario_id', flat=True)[0]
+        data = ScenarioRole.objects.filter(scenario = scenario_id)
+        serializer = RoleItemFinalSerializer(data, many=True)
+        return Response({'roleitem': serializer.data})
         
 
     elif request.method=='POST':
-        username=request.query_params['username']
-        scene=request.query_params['scenario']
-        roleitem=request.query_params['roleitem']
-
-        userserializer 
-        serializer = UserItemPostSerializer(data=request.data)
+        serializer = RoleItemPostPutSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
 
     elif request.method=='PUT':
-        serializer = UserItemPostSerializer(data=request.data)
+        serializer = RoleItemPostPutSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

@@ -29,7 +29,7 @@ urlpatterns = [
 
     path('roleitem/admin/', SendAdminItem),
 
-    path('roleitem/updateuser', UpdateUserItem),
+    path('roleitem/updateuser/', UpdateUserItem),
     
     #consumption log page
     path('pastconsscenario/admin/', SendAdminQuantity),

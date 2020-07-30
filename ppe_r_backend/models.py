@@ -183,8 +183,8 @@ class Scenario(models.Model):
 
 class ScenarioRole(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
-    role = models.ForeignKey(Role, models.DO_NOTHING, blank=True, null=True)
-    scenario = models.ForeignKey(Scenario, models.DO_NOTHING, blank=True, null=True)
+    role = models.ForeignKey('Role', models.DO_NOTHING, blank=True, null=True)
+    scenario = models.ForeignKey('Scenario', models.DO_NOTHING, blank=True, null=True)
     scenario_role_id = models.AutoField(primary_key=True)
 
     class Meta:
