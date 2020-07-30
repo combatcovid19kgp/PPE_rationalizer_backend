@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import User,ScenarioRole,Scenario,RoleItem,Role,PastConsumptionItem,PastConsumption,Item
-from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, UserItemGetSerializer, UserItemPostSerializer , PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
+from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, UserItemPostSerializer , PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
 from datetime import datetime
 
 #User
@@ -110,18 +110,20 @@ def SendAdminItem(request):
         serializer = RoleItemAdminSerializer(data ,many=True)
         return Response(serializer.data)
 
-@api_view(['GET','POST','PUT'])
+@api_view(['GET,''POST','PUT'])
 def UpdateUserItem(request):
+
     if request.method=='GET':
         username=request.query_params['username']
         scene=request.query_params['scenario']
-        scenario_id = Scenario.objects.filter(user=username, scene_type=scene).values_list('scenario_id', flat=True)[0]
-        user_id = User.objects.filter(username=username).values_list('user_id', flat=True)[0]
-        data = RoleItem.objects.filter(user=user_id, scenario = scenario_id)
-        serializer = UserItemGetSerializer(data, many= True)
-        return Response(serializer.data)
+        
 
     elif request.method=='POST':
+        username=request.query_params['username']
+        scene=request.query_params['scenario']
+        roleitem=request.query_params['roleitem']
+
+        userserializer 
         serializer = UserItemPostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

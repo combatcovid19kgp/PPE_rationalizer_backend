@@ -89,33 +89,42 @@ class RoleItemAdminSerializer(serializers.ModelSerializer):
         )
         model = RoleItem
 
-class UserItemGetSerializer(serializers.ModelSerializer):
+class RoleItemIntermediateSerializer(serializers.ModelSerializer):
     item_name = serializers.CharField(source='item.type')
-    role_name = serializers.CharField(source='role.role_name')
+    item_quantity = serializers.CharField(source='quantity')
     class Meta:
-        fields = (
-            'role_name'
-            'item_name',
-            'quantity'
-        )
         model = RoleItem
+        fields = ('item_name', 'item_quantity')
 
-# This needs editing as this serializer can not access role_name and item_name for a specific user, need to read into Nested Serializers, the views part is good.
+class RoleItemFinalSerializer(serializers.ModelSerializer):
+    itemquan = RoleItemIntermediateSerializer(many=True)
+    role_name = serializers.CharField(source='role.role_name')
+    role_quantity = serializers.CharField(source='quantity')
+    class Meta:
+        model = ScenarioRole
+        fields = ('role_name', 'role_quantity','itemquan')
 
-class UserItemPostSerializer(serializers.ModelSerializer):
+class RoleItemUpdatedSerializer(serializers.ModelSerializer):
+    roleitem = RoleItemFinalSerializer(many=True)
+    class Meta:
+        model = Role
+        fields= ('roleitem')
+
+class RoleItemPostPutSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     scenario = serializers.CharField(source='scene_type')
-    item_name = serializers.CharField(source='item.type')
-    role_name = serializers.CharField(source='role.role_name')
+    roleitem = RoleItemFinalSerializer(many=True)
     class Meta:
-        fields = (
-            'username',
-            'scenario',
-            'role_name',
-            'item_name',
-        )
-        model = User
-        
+        model = Scenario
+        fields = ('username','scenario','roleitem')
+
+class RoleItemGetSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    scenario = serializers.CharField(source='scene_type')
+    class Meta:
+        model = Scenario
+        fields = ('username','scenario')
+
 #consumption log page
 
 #to get the itemwise sum of past-consumption of the roles given a scenario and date range
