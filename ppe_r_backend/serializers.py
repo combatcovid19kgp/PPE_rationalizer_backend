@@ -96,7 +96,7 @@ class RoleItemIntermediateSerializer(serializers.ModelSerializer):
         model = RoleItem
         fields = ('item_name', 'item_quantity')
 
-class RoleItemFinalSerializer(serializers.ModelSerializer):
+class RoleItemGetSerializer(serializers.ModelSerializer):
     itemquan = serializers.SerializerMethodField()
     role_name = serializers.CharField(source='role.role_name')
     role_quantity = serializers.CharField(source='quantity')
@@ -110,17 +110,47 @@ class RoleItemFinalSerializer(serializers.ModelSerializer):
         qset = RoleItem.objects.filter(scenario=scenario_id,role=role_id)
         return [RoleItemIntermediateSerializer(m).data for m in qset]
 
+class RoleItemGetFinalSerializer(serializers.ModelSerializer):
+    roleitem = serializers.SerializerMethodField()
+    class Meta:
+        model = Scenario
+        fields = ('roleitem', )
+
+    def get_roleitem(self, obj):
+        scenario_id=obj.scenario_id
+        qset = ScenarioRole.objects.filter(scenario=scenario_id)
+        return [RoleItemGetSerializer(m).data for m in qset]
+    
 
 class RoleItemPostPutSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username')
-    scenario = serializers.CharField(source='scene_type')
-    roleitem = RoleItemFinalSerializer(many=True)
+    username = serializers.CharField()
+    scenario = serializers.CharField()
+    roleitem = serializers.ListField()
     class Meta:
         model = Scenario
         fields = ('username','scenario','roleitem')
+        
+    def create(self, validated_data):
+        username = validated_data.pop('username')
+        scenario = validated_data.pop('scenario')
+        roleitem = validated_data.pop('roleitem')
+        user_id = User.objects.filter(username=username).values_list('user_id', flat=True)[0]
+        scenario_id = Scenario.objects.filter(user=user_id, scene_type=scenario)[0]
+        for roleobj in roleitem:
+            role_name = roleobj.pop('role_name')
+            role = Role.objects.filter(role_name = role_name)[0]
+            quantity = roleobj.pop('role_quantity')
+            ScenarioRole.objects.update_or_create(quantity=quantity, role=role, scenario=scenario_id)
+            itemquan = roleobj.pop('itemquan')
+            for itemquanobj in itemquan:
+                item_name = itemquanobj.pop('item_name')
+                item = Item.objects.filter(type=item_name)[0]
+                quantity = itemquanobj.pop('item_quantity')
+                cost_piece = 1
+                RoleItem.objects.update_or_create(quantity=quantity, cost_piece=cost_piece, scenario=scenario_id, role=role, item=item)
 
-    # def create(self, validated_data):
-
+        return 'OK'   
+        
     # def update(self, instance, validated_data):
 
 # class UpdateDemandSerializer(serializers.ModelSerializer):
