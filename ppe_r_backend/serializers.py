@@ -140,19 +140,22 @@ class RoleItemPostPutSerializer(serializers.ModelSerializer):
             role_name = roleobj.pop('role_name')
             role = Role.objects.filter(role_name = role_name)[0]
             quantity = roleobj.pop('role_quantity')
-            ScenarioRole.objects.update_or_create(quantity=quantity, role=role, scenario=scenario_id)
+            ScenarioRole.objects.update_or_create(
+                role=role, scenario=scenario_id,
+                defaults={'quantity': quantity})
             itemquan = roleobj.pop('itemquan')
             for itemquanobj in itemquan:
                 item_name = itemquanobj.pop('item_name')
                 item = Item.objects.filter(type=item_name)[0]
                 quantity = itemquanobj.pop('item_quantity')
-                cost_piece = 1
-                RoleItem.objects.update_or_create(quantity=quantity, cost_piece=cost_piece, scenario=scenario_id, role=role, item=item)
+                cost_piece = 0
+                RoleItem.objects.update_or_create(
+                    cost_piece=cost_piece, scenario=scenario_id, role=role, item=item,
+                    defaults={'quantity': quantity})
 
         return 'OK'   
         
-    # def update(self, instance, validated_data):
-
+    
 # class UpdateDemandSerializer(serializers.ModelSerializer):
 
 

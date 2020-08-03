@@ -129,12 +129,6 @@ def UpdateUserItem(request):
             serializer.save()
             return Response(serializer.validated_data)
         return Response(serializer.errors)
-    elif request.method=='PUT':
-        serializer = RoleItemPostPutSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors)
     
 #to get the itemwise sum of past-consumption of the roles given a scenario and date range
 @api_view(['GET'])
