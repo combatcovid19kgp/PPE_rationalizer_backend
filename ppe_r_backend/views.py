@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import User,ScenarioRole,Scenario,RoleItem,Role,PastConsumptionItem,PastConsumption,Item
-from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, RoleItemPostPutSerializer, RoleItemGetSerializer, RoleItemGetFinalSerializer, PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
+from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, RoleItemPostPutSerializer, RoleItemGetSerializer, RoleItemGetFinalSerializer, ScenarioRoleDeleteSerializer, RoleItemDeleteSerializer, PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
 from datetime import datetime
 
 #User
@@ -110,7 +110,7 @@ def SendAdminItem(request):
         serializer = RoleItemAdminSerializer(data ,many=True)
         return Response(serializer.data)
 
-@api_view(['GET','POST','PUT'])
+@api_view(['GET','POST'])
 def UpdateUserItem(request):
 
     if request.method=='GET':
@@ -122,14 +122,47 @@ def UpdateUserItem(request):
         serializer = RoleItemGetFinalSerializer(data[0])
         return Response(serializer.data)
         
-
     elif request.method=='POST':
         serializer = RoleItemPostPutSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.validated_data)
         return Response(serializer.errors)
-    
+
+@api_view(['DELETE'])
+def DeleteUserRole(request):
+    if request.method=='DELETE':
+        serializer = ScenarioRoleDeleteSerializer(data = request.data)
+        if serializer.is_valid():
+            request_data=serializer.data
+            userna=request_data['username']
+            scene=request_data['scenario']
+            user_id = User.objects.filter(username=userna).values_list('user_id', flat=True)[0]
+            scenario_id = Scenario.objects.filter(user=user_id, scene_type=scene).values_list('scenario_id', flat=True)[0]
+            role=request_data['role']
+            role_id = Role.objects.filter(role_name=role).values_list('role_id', flat=True)[0]
+            data = ScenarioRole.objects.filter(role=role_id, scenario=scenario_id)[0]
+            data.delete()
+            return Response('Role Deleted')
+
+@api_view(['DELETE'])
+def DeleteUserItem(request):
+    if request.method=='DELETE':
+        serializer = RoleItemDeleteSerializer(data = request.data)
+        if serializer.is_valid():
+            request_data=serializer.data
+            userna=request_data['username']
+            scene=request_data['scenario']
+            user_id = User.objects.filter(username=userna).values_list('user_id', flat=True)[0]
+            scenario_id = Scenario.objects.filter(user=user_id, scene_type=scene).values_list('scenario_id', flat=True)[0]
+            role=request_data['role']
+            role_id = Role.objects.filter(role_name=role).values_list('role_id', flat=True)[0]
+            item=request_data['item']
+            item_id = Item.objects.filter(type=item).values_list('item_id', flat=True)[0]
+            data = RoleItem.objects.filter(role=role_id, scenario=scenario_id, item=item_id)[0]
+            data.delete()
+            return Response('Item Deleted')
+
 #to get the itemwise sum of past-consumption of the roles given a scenario and date range
 @api_view(['GET'])
 def SendAdminQuantity(request):

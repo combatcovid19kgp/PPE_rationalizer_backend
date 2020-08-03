@@ -154,8 +154,23 @@ class RoleItemPostPutSerializer(serializers.ModelSerializer):
                     defaults={'quantity': quantity})
 
         return 'OK'   
-        
-    
+
+class ScenarioRoleDeleteSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    scenario = serializers.CharField()
+    role = serializers.CharField()
+    class Meta:
+        model = ScenarioRole
+        fields = ('username','scenario','role')
+
+class RoleItemDeleteSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    scenario = serializers.CharField()
+    role = serializers.CharField()
+    item = serializers.CharField()
+    class Meta:
+        model = RoleItem
+        fields = ('username','scenario','role','item')
 # class UpdateDemandSerializer(serializers.ModelSerializer):
 
 
