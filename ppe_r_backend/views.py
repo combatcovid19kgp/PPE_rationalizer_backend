@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import User,ScenarioRole,Scenario,RoleItem,Role,PastConsumptionItem,PastConsumption,Item
-from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, RoleItemPostPutSerializer, RoleItemGetSerializer, RoleItemGetFinalSerializer, ScenarioRoleDeleteSerializer, RoleItemDeleteSerializer, PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
+from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, RoleItemPostPutSerializer, RoleItemGetSerializer, RoleItemGetFinalSerializer, ScenarioRoleDeleteSerializer, RoleItemDeleteSerializer, RoleItemGetOverallSerializer, PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
 from datetime import datetime
 
 #User
@@ -128,6 +128,16 @@ def UpdateUserItem(request):
             serializer.save()
             return Response(serializer.validated_data)
         return Response(serializer.errors)
+
+@api_view(['GET'])
+def OverallUserItem(request):
+
+    if request.method=='GET':
+        userna=request.query_params['username']
+        user_id = User.objects.filter(username=userna).values_list('user_id', flat=True)[0]
+        data = Scenario.objects.filter(user=user_id)
+        serializer = RoleItemGetOverallSerializer(data, many=True)
+        return Response(serializer.data)
 
 @api_view(['DELETE'])
 def DeleteUserRole(request):

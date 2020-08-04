@@ -121,6 +121,17 @@ class RoleItemGetFinalSerializer(serializers.ModelSerializer):
         qset = ScenarioRole.objects.filter(scenario=scenario_id)
         return [RoleItemGetSerializer(m).data for m in qset]
     
+class RoleItemGetOverallSerializer(serializers.ModelSerializer):
+    scenario = serializers.CharField(source='scene_type')
+    item = serializers.SerializerMethodField()
+    class Meta:
+        model = Scenario
+        fields = ('scenario', 'item')
+
+    def get_item(self, obj):
+        scenario_id=obj.scenario_id
+        qset = RoleItem.objects.filter(scenario=scenario_id)
+        return [RoleItemIntermediateSerializer(m).data for m in qset]
 
 class RoleItemPostPutSerializer(serializers.ModelSerializer):
     username = serializers.CharField()
