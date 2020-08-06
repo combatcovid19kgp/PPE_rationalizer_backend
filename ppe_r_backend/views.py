@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import User,ScenarioRole,Scenario,RoleItem,Role,PastConsumptionItem,PastConsumption,Item
-from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, RoleItemPostPutSerializer, RoleItemGetSerializer, RoleItemGetFinalSerializer, ScenarioRoleDeleteSerializer, RoleItemDeleteSerializer, RoleItemGetOverallSerializer, PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
+from .serializers import UserSerializer, ScenarioSerializer, RoleSerializer, RoleItemSerializer, ScenarioRoleSerializer,ItemSerializer,PastConsumptionSerializer,PastConsumptionItemSerializer, RoleItemAdminSerializer, RoleItemPostPutSerializer, RoleItemGetSerializer, RoleItemGetFinalSerializer, ScenarioRoleDeleteSerializer, RoleItemDeleteSerializer, RoleItemGetOverallSerializer, ConsumptionItemGetFinalSerializer , ConsumptionItemPostPutSerializer ,PastConsScenarioAdminSerializer ,PastConsOverallAdminSerializer
 from datetime import datetime
 
 #User
@@ -172,6 +172,25 @@ def DeleteUserItem(request):
             data = RoleItem.objects.filter(role=role_id, scenario=scenario_id, item=item_id)[0]
             data.delete()
             return Response('Item Deleted')
+
+@api_view(['GET','POST'])
+def UpdateConsumptionItem(request):
+
+    if request.method=='GET':
+        userna=request.query_params['username']
+        scene=request.query_params['scenario']
+        user_id = User.objects.filter(username=userna).values_list('user_id', flat=True)[0]
+        scenario_id = Scenario.objects.filter(user=user_id, scene_type=scene).values_list('scenario_id', flat=True)[0]
+        data = Scenario.objects.filter(scenario_id = scenario_id)
+        serializer = ConsumptionItemGetFinalSerializer(data[0])
+        return Response(serializer.data)
+        
+    elif request.method=='POST':
+        serializer = ConsumptionItemPostPutSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.validated_data)
+        return Response(serializer.errors)
 
 #to get the itemwise sum of past-consumption of the roles given a scenario and date range
 @api_view(['GET'])

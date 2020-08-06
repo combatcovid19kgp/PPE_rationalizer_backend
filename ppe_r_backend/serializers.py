@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import User, Scenario, Role, Item, PastConsumption, ScenarioRole, RoleItem, PastConsumptionItem
-
+from datetime import date
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -182,10 +182,70 @@ class RoleItemDeleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoleItem
         fields = ('username','scenario','role','item')
-# class UpdateDemandSerializer(serializers.ModelSerializer):
 
+class ConsumptionItemIntermediateSerializer(serializers.ModelSerializer):
+    item_name = serializers.CharField(source='item.type')
+    item_quantity = serializers.CharField(source='quantity')
+    class Meta:
+        model = PastConsumptionItem
+        fields = ('item_name', 'item_quantity')
 
-#consumption log page
+class ConsumptionItemGetSerializer(serializers.ModelSerializer):
+    itemquan = serializers.SerializerMethodField()
+    role_name = serializers.CharField(source='role.role_name')
+    class Meta:
+        model = PastConsumption
+        fields = ('role_name', 'itemquan')
+
+    def get_itemquan(self, obj):
+        consumption_id=obj.consumption_id
+        qset = PastConsumptionItem.objects.filter(consumption=consumption_id)
+        return [ConsumptionItemIntermediateSerializer(m).data for m in qset]
+
+class ConsumptionItemGetFinalSerializer(serializers.ModelSerializer):
+    roleitem = serializers.SerializerMethodField()
+    class Meta:
+        model = Scenario
+        fields = ('roleitem', )
+
+    def get_roleitem(self, obj):
+        scenario_id=obj.scenario_id
+        qset = PastConsumption.objects.filter(scenario=scenario_id, date=date.today())
+        return [ConsumptionItemGetSerializer(m).data for m in qset]
+
+class ConsumptionItemPostPutSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    scenario = serializers.CharField()
+    roleitem = serializers.ListField()
+    class Meta:
+        model = Scenario
+        fields = ('username','scenario','roleitem')
+        
+    def create(self, validated_data):
+        username = validated_data.pop('username')
+        scenario = validated_data.pop('scenario')
+        roleitem = validated_data.pop('roleitem')
+        user_id = User.objects.filter(username=username).values_list('user_id', flat=True)[0]
+        scenario_id = Scenario.objects.filter(user=user_id, scene_type=scenario)[0]
+        scene = Scenario.objects.filter(user=user_id, scene_type=scenario).values_list('scenario_id', flat=True)[0]
+        for roleobj in roleitem:
+            role_name = roleobj.pop('role_name')
+            role = Role.objects.filter(role_name = role_name)[0]
+            role_id = Role.objects.filter(role_name = role_name).values_list('role_id', flat=True)[0]
+            PastConsumption.objects.update_or_create(
+                role=role, scenario=scenario_id, date=date.today())
+            consumption = PastConsumption.objects.filter(scenario=scene, role=role_id, date=date.today())[0]
+            itemquan = roleobj.pop('itemquan')
+            for itemquanobj in itemquan:
+                item_name = itemquanobj.pop('item_name')
+                item = Item.objects.filter(type=item_name)[0]
+                quantity = itemquanobj.pop('item_quantity')
+                cost_piece = 0
+                PastConsumptionItem.objects.update_or_create(
+                    consumption=consumption, item=item,
+                    defaults={'quantity': quantity})
+
+        return 'OK'   
 
 #to get the itemwise sum of past-consumption of the roles given a scenario and date range
 class PastConsScenarioAdminSerializer(serializers.ModelSerializer):
